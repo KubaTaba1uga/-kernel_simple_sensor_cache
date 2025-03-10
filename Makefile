@@ -29,7 +29,7 @@ STRIP := ${CROSS_COMPILE}strip
 PWD            := $(shell pwd)
 obj-m          += ${FNAME_C}.o
 
-MYDEBUG ?= y
+MYDEBUG ?= n
 DBG_STRIP := y
 ifeq (${MYDEBUG}, y)
 # https://www.kernel.org/doc/html/latest/kbuild/makefiles.html#compilation-flags
@@ -89,7 +89,7 @@ ifeq (,$(shell which dtc))
 	$(error ERROR: install the DTC compiler first)
 endif
 	@echo "--- compiles the Device Tree Blob (DTB) from the DTS (ARM/PPC/etc) ---"
-	dtc -@ -I dts -O dtb -o $(FNAME_C).dtb $(FNAME_C).dts
+	dtc -@ -I dts -O dtb -o $(FNAME_C).dtbo $(FNAME_C).dts
 	# DTBO - Device Tree Blob Overlay
 nsdeps:
 	@echo "--- nsdeps (namespace dependencies resolution; for possibly importing ns's) ---"
