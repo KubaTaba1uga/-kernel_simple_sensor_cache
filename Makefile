@@ -1,17 +1,3 @@
-# ***************************************************************
-# This program was orginally part of the source code released for the book
-#  "Linux Kernel Programming" 2E
-#  (c) Author: Kaiwan N Billimoria
-#  Publisher:  Packt
-#  GitHub repository:
-#  https://github.com/PacktPublishing/Linux-Kernel-Programming_2E
-#
-#  (c) Contributor: Jakub Buczynski <KubaTaba1uga>
-# ***************************************************************
-#
-# To get started, just type:
-#  make help
-#
 FNAME_C ?= am2303_driver
 ifeq ($(FNAME_C),)
   $(error ERROR: you Must pass the C file like this: \
