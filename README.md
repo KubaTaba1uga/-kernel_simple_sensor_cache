@@ -60,6 +60,12 @@ find /proc/device-tree/ | grep am2303
   sudo rmmod am2303_driver
   ```
 
+## TO-DO
+
+There is still some stuff to improve:
+- specify pin dynamically via LKM parameter
+- use IRQ instead of delays and sleeps
+
 ## License
 
 Dual MIT/GPL
