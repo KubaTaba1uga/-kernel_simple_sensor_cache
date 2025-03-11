@@ -16,9 +16,6 @@
 #include "set_up_communication.h"
 #include "sysfs.h"
 
-/***************************************************************
- *                        PUBLIC API
- **************************************************************/
 static int am2303_probe(struct platform_device *pdev)
 {
 	struct am2303_data *data;
