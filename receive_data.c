@@ -74,15 +74,21 @@ int simple_sensor_cache_receive_data(struct simple_sensor_cache_data *data) {
     data->checksum = (data->checksum << 1) | result[i];
   }
 
+  u8 expected_checksum = (data->humidity_number + data->humidity_fraction +
+                          data->temp_number + data->temp_fraction) &
+                         0xFF;
+
+  if (data->checksum != expected_checksum) {
+    LKM_PRINT_ERR(data->pdev,
+                  "Checksum is not matching: expected=%d vs actual=%d\n",
+                  expected_checksum, data->checksum);
+    return 1;
+  }
+
   dev_info(&data->pdev->dev, "Humidity: %d.%d\n", data->humidity_number,
            data->humidity_fraction);
   dev_info(&data->pdev->dev, "Temprature: %d.%d\n", data->temp_number,
            data->temp_fraction);
-  dev_info(&data->pdev->dev, "Checksum: %d vs %d\n",
-           (data->humidity_number + data->humidity_fraction +
-            data->temp_number + data->temp_fraction) &
-               0xFF,
-           data->checksum);
 
   return 0;
 };
