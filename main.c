@@ -1,17 +1,12 @@
 /*
- * simple_sensor_cache.c
+ * am2303 driver
  ****************************************************************
  * Brief Description:
  * A simple module which implements driver for AM2303 and some caching
- *  mechanism. AM2303 uses some custom single-bus protocol.
+ *  mechanism. AM2303 uses some custom single-bus protocol which requires
+ *  that read occurs respecting 2s waiting time. Module implements simple
+ *  cache which ensures that reads does not occur more often.
  */
-#include <linux/delay.h>
-#include <linux/dev_printk.h>
-#include <linux/err.h>
-#include <linux/gpio/consumer.h>
-#include <linux/init.h>
-#include <linux/kernel.h>
-#include <linux/module.h>
 #include <linux/of_device.h>
 #include <linux/platform_device.h>
 

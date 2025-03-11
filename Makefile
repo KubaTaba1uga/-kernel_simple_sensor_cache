@@ -28,7 +28,7 @@ STRIP := ${CROSS_COMPILE}strip
 
 PWD            := $(shell pwd)
 obj-m          += ${FNAME_C}.o
-am2303_driver-objs := simple_sensor_cache.o init_sensor.o set_up_communication.o receive_data.o
+am2303_driver-objs := main.o init_sensor.o set_up_communication.o receive_data.o
 
 MYDEBUG ?= n
 DBG_STRIP := y
