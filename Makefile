@@ -12,7 +12,7 @@
 # To get started, just type:
 #  make help
 #
-FNAME_C ?= simple_sensor_cache
+FNAME_C ?= am2303_driver
 ifeq ($(FNAME_C),)
   $(error ERROR: you Must pass the C file like this: \
   make FNAME_C=csrc-filename-without-.c target-name)
@@ -28,6 +28,7 @@ STRIP := ${CROSS_COMPILE}strip
 
 PWD            := $(shell pwd)
 obj-m          += ${FNAME_C}.o
+am2303_driver-objs := simple_sensor_cache.o init_sensor.o set_up_communication.o receive_data.o
 
 MYDEBUG ?= n
 DBG_STRIP := y
