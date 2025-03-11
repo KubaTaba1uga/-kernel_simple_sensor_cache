@@ -36,7 +36,7 @@ int simple_sensor_cache_receive_data(struct simple_sensor_cache_data *data) {
       udelay(10);
     }
 
-    if (waits >= 7) {
+    if (waits >= 6) {
       result[i] = 1;
     } else {
       result[i] = 0;
