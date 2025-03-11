@@ -2,6 +2,7 @@
 #include <linux/ktime.h>
 
 #include "common.h"
+#include "linux/mutex.h"
 #include "receive_data.h"
 #include "set_up_communication.h"
 
@@ -13,6 +14,7 @@ static int receive_data(struct simple_sensor_cache_data *data);
 
 static DEVICE_ATTR(temp, 0440, show_temp, NULL);
 static DEVICE_ATTR(humid, 0440, show_humid, NULL);
+static DEFINE_MUTEX(recv_data_lock);
 
 int simple_sensor_cache_init_sysfs(struct simple_sensor_cache_data *data) {
   int err;
@@ -29,6 +31,8 @@ int simple_sensor_cache_init_sysfs(struct simple_sensor_cache_data *data) {
   if (err) {
     return err;
   }
+
+  mutex_init(&recv_data_lock);
 
   return 0;
 };
@@ -81,19 +85,26 @@ static int receive_data(struct simple_sensor_cache_data *data) {
     return 0;
   }
 
+  mutex_lock(&recv_data_lock);
+
   err = simple_sensor_cache_set_up_communication(data);
   if (err) {
     LKM_PRINT_ERR(data->pdev, "Unable to set up communication with sensor");
-    return -1;
+    goto cleanup;
   }
 
   err = simple_sensor_cache_receive_data(data);
   if (err) {
     LKM_PRINT_ERR(data->pdev, "Unable to receive data from sensor");
-    return -1;
+    goto cleanup;
   }
 
   data->last_receive = now;
 
-  return 0;
+  err = 0;
+
+cleanup:
+  mutex_unlock(&recv_data_lock);
+
+  return err;
 }
