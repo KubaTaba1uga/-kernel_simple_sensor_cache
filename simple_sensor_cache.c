@@ -5,6 +5,7 @@
  * A simple module which implements driver for AM2303 and some caching
  *  mechanism. AM2303 uses some custom single-bus protocol.
  */
+#include "asm-generic/delay.h"
 #include "linux/dev_printk.h"
 #include <linux/delay.h>
 #include <linux/err.h>
@@ -20,8 +21,11 @@
  **************************************************************/
 struct simple_sensor_cache_data {
   struct gpio_desc *gpio;
+  struct platform_device *pdev;
 };
 static int simple_sensor_cache_init(struct platform_device *pdev);
+static int
+simple_sensor_cache_receive_data(struct simple_sensor_cache_data *data);
 
 /***************************************************************
  *                        PUBLIC API
@@ -42,47 +46,36 @@ static int simple_sensor_cache_probe(struct platform_device *pdev) {
 
   // First we need to drive output high to initialize communication
   gpiod_direction_output(data->gpio, 1);
+  udelay(500); // Busy-wait some time to allow sensor to detect init
 
-  udelay(500); // Busy-wait for 500 microseconds
-
-  // Set the GPIO low for at least 500us to continue initialization
+  // Set the GPIO low to continue initialization
   gpiod_set_value(data->gpio, 0);
   mdelay(20); // Busy-wait for >18ms
 
   /* // Set the GPIO back to high and wait for response */
   gpiod_set_value(data->gpio, 1);
-  udelay(30); // Busy-wait between 20 and 40 us
+  udelay(30); // Wait between 20 and 40 us
   gpiod_direction_input(data->gpio);
 
-  int i = 0;
-  while (gpiod_get_value(data->gpio) && ++i < 10) {
-    usleep_range(
-        40,
-        80); // According spec after about 80us sensor will anwser by pulldown
-  }
-
-  dev_info(&pdev->dev, "Pulldown wait cycles: %i\n", i);
-  if (i == 10) {
+  udelay(20);
+  if (gpiod_get_value(data->gpio) != 0) {
     dev_err(&pdev->dev, "Sensor is not responding with low voltage\n");
     return 1;
   }
+  udelay(30);
 
-  i = 0;
-  while (!gpiod_get_value(data->gpio) && ++i < 10) {
-    usleep_range(
-        40, 80); // According spec after next 80us sensor will anwser by pullup
-  }
-
-  dev_info(&pdev->dev, "Pullup wait cycles: %i\n", i);
-  if (i == 10) {
+  udelay(50);
+  if (gpiod_get_value(data->gpio) != 1) {
     dev_err(&pdev->dev, "Sensor is not responding with high voltage\n");
     return 1;
   }
 
-  /* int value = gpiod_get_value(data->gpio); */
+  err = simple_sensor_cache_receive_data(data);
+  if (err) {
+    dev_err(&pdev->dev, "Unable to receive data\n");
+  }
 
-  /* dev_info(&pdev->dev, "value: %i\n", value); */
-  /* dev_info(&pdev->dev, "Custom one-wire GPIO driver probed\n"); */
+  dev_info(&pdev->dev, "Custom one-wire GPIO driver probed\n");
 
   return 0;
 }
@@ -141,9 +134,46 @@ static int simple_sensor_cache_init(struct platform_device *pdev) {
                          "Failed to get GPIO\n");
   }
 
+  data->pdev = pdev;
+
   // This functions sets device data so it can be acessed from anwyehre in this
   //   device ctx.
   platform_set_drvdata(pdev, data);
 
   return 0;
 }
+
+static int
+simple_sensor_cache_receive_data(struct simple_sensor_cache_data *data) {
+  // At this point pin is already set to receive
+
+  // First sensor pulls down voltage to indicate bit transmission
+  int i = 0;
+  while (gpiod_get_value(data->gpio) && ++i < 10) {
+    usleep_range(20, 40);
+  }
+
+  if (i == 10) {
+    dev_err(&data->pdev->dev, "Sensor is not responding with low voltage: %i\n",
+            i);
+    return 1;
+  }
+
+  // We need to wait untill bit transmission starts
+  udelay(50);
+
+  // Now we need to receive one bit, if voltage was high for more than 70us it
+  // is 1 if shorter it is 0
+  i = 0;
+  while (gpiod_get_value(data->gpio) && ++i < 10) {
+    udelay(10);
+  }
+
+  if (i >= 7) {
+    dev_info(&data->pdev->dev, "Received one\n");
+  } else {
+    dev_info(&data->pdev->dev, "Received zero\n");
+  }
+
+  return 0;
+};
