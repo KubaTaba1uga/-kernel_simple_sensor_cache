@@ -12,8 +12,8 @@ static ssize_t show_humid(struct device *dev, struct device_attribute *attr,
                           char *buf);
 static int receive_data(struct simple_sensor_cache_data *data);
 
-static DEVICE_ATTR(temp, 0440, show_temp, NULL);
-static DEVICE_ATTR(humid, 0440, show_humid, NULL);
+static DEVICE_ATTR(temperature, 0440, show_temp, NULL);
+static DEVICE_ATTR(humidity, 0440, show_humid, NULL);
 static DEFINE_MUTEX(recv_data_lock);
 
 int simple_sensor_cache_init_sysfs(struct simple_sensor_cache_data *data) {
@@ -22,12 +22,12 @@ int simple_sensor_cache_init_sysfs(struct simple_sensor_cache_data *data) {
   data->last_receive.tv_sec = 0;
   data->last_receive.tv_nsec = 0;
 
-  err = device_create_file(&data->pdev->dev, &dev_attr_temp);
+  err = device_create_file(&data->pdev->dev, &dev_attr_temperature);
   if (err) {
     return err;
   }
 
-  err = device_create_file(&data->pdev->dev, &dev_attr_humid);
+  err = device_create_file(&data->pdev->dev, &dev_attr_humidity);
   if (err) {
     return err;
   }
@@ -38,8 +38,8 @@ int simple_sensor_cache_init_sysfs(struct simple_sensor_cache_data *data) {
 };
 
 void simple_sensor_cache_destroy_sysfs(struct simple_sensor_cache_data *data) {
-  device_remove_file(&data->pdev->dev, &dev_attr_temp);
-  device_remove_file(&data->pdev->dev, &dev_attr_humid);
+  device_remove_file(&data->pdev->dev, &dev_attr_temperature);
+  device_remove_file(&data->pdev->dev, &dev_attr_humidity);
 };
 
 static ssize_t show_temp(struct device *dev, struct device_attribute *attr,

@@ -1,5 +1,5 @@
 #### Overview:
-Imagine a scenario where user-space applications frequently read temperature data from a sensor (e.g., connected via I²C). Reading directly from hardware every time causes latency and overhead. By introducing a kernel-level cache, your kernel module periodically fetches the sensor data, stores it in kernel memory, and efficiently provides this cached data to user-space applications upon request.
+Imagine a scenario where user-space applications frequently read temperature data from a sensor. Reading directly from hardware every time causes latency and overhead. By introducing a kernel-level cache, your kernel module periodically fetches the sensor data, stores it in kernel memory, and efficiently provides this cached data to user-space applications upon request.
 
 #### Workflow:
 - **Kernel-side**:
