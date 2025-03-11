@@ -54,5 +54,35 @@ int simple_sensor_cache_receive_data(struct simple_sensor_cache_data *data) {
     dev_info(&data->pdev->dev, "%i \n", result[i]);
   }
 
+  for (int i = 0; i < 8; i++) {
+    data->humidity_number = (data->humidity_number << 1) | result[i];
+  }
+
+  for (int i = 8; i < 16; i++) {
+    data->humidity_fraction = (data->humidity_fraction << 1) | result[i];
+  }
+
+  for (int i = 16; i < 24; i++) {
+    data->temp_number = (data->temp_number << 1) | result[i];
+  }
+
+  for (int i = 24; i < 32; i++) {
+    data->temp_fraction = (data->temp_fraction << 1) | result[i];
+  }
+
+  for (int i = 32; i < 40; i++) {
+    data->checksum = (data->checksum << 1) | result[i];
+  }
+
+  dev_info(&data->pdev->dev, "Humidity: %d.%d\n", data->humidity_number,
+           data->humidity_fraction);
+  dev_info(&data->pdev->dev, "Temprature: %d.%d\n", data->temp_number,
+           data->temp_fraction);
+  dev_info(&data->pdev->dev, "Checksum: %d vs %d\n",
+           (data->humidity_number + data->humidity_fraction +
+            data->temp_number + data->temp_fraction) &
+               0xFF,
+           data->checksum);
+
   return 0;
 };
