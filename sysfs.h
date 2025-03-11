@@ -1,10 +1,10 @@
-#ifndef SIMPLE_SENSOR_CACHE_SYSFS
-#define SIMPLE_SENSOR_CACHE_SYSFS
+#ifndef AM2303_SYSFS
+#define AM2303_SYSFS
 
 #include "common.h"
 
-int simple_sensor_cache_init_sysfs(struct simple_sensor_cache_data *data);
+int am2303_init_sysfs(struct am2303_data *data);
 
-void simple_sensor_cache_destroy_sysfs(struct simple_sensor_cache_data *data);
+void am2303_destroy_sysfs(struct am2303_data *data);
 
 #endif

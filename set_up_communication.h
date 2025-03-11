@@ -1,9 +1,8 @@
-#ifndef SIMPLE_SENSOR_CACHE_SET_UP_COMMUNICATION
-#define SIMPLE_SENSOR_CACHE_SET_UP_COMMUNICATION
+#ifndef AM2303_SET_UP_COMMUNICATION
+#define AM2303_SET_UP_COMMUNICATION
 
 #include "common.h"
 
-int simple_sensor_cache_set_up_communication(
-    struct simple_sensor_cache_data *data);
+int am2303_set_up_communication(struct am2303_data *data);
 
 #endif

@@ -10,13 +10,13 @@ static ssize_t show_temp(struct device *dev, struct device_attribute *attr,
                          char *buf);
 static ssize_t show_humid(struct device *dev, struct device_attribute *attr,
                           char *buf);
-static int receive_data(struct simple_sensor_cache_data *data);
+static int receive_data(struct am2303_data *data);
 
 static DEVICE_ATTR(temperature, 0440, show_temp, NULL);
 static DEVICE_ATTR(humidity, 0440, show_humid, NULL);
 static DEFINE_MUTEX(recv_data_lock);
 
-int simple_sensor_cache_init_sysfs(struct simple_sensor_cache_data *data) {
+int am2303_init_sysfs(struct am2303_data *data) {
   int err;
 
   data->last_receive.tv_sec = 0;
@@ -37,14 +37,14 @@ int simple_sensor_cache_init_sysfs(struct simple_sensor_cache_data *data) {
   return 0;
 };
 
-void simple_sensor_cache_destroy_sysfs(struct simple_sensor_cache_data *data) {
+void am2303_destroy_sysfs(struct am2303_data *data) {
   device_remove_file(&data->pdev->dev, &dev_attr_temperature);
   device_remove_file(&data->pdev->dev, &dev_attr_humidity);
 };
 
 static ssize_t show_temp(struct device *dev, struct device_attribute *attr,
                          char *buf) {
-  struct simple_sensor_cache_data *data;
+  struct am2303_data *data;
   int err;
 
   data = dev_get_drvdata(dev);
@@ -60,7 +60,7 @@ static ssize_t show_temp(struct device *dev, struct device_attribute *attr,
 
 static ssize_t show_humid(struct device *dev, struct device_attribute *attr,
                           char *buf) {
-  struct simple_sensor_cache_data *data;
+  struct am2303_data *data;
   int err;
 
   data = dev_get_drvdata(dev);
@@ -74,7 +74,7 @@ static ssize_t show_humid(struct device *dev, struct device_attribute *attr,
   return sprintf(buf, "%d\n", data->humidity);
 }
 
-static int receive_data(struct simple_sensor_cache_data *data) {
+static int receive_data(struct am2303_data *data) {
   struct timespec64 now;
   int err;
 
@@ -88,13 +88,13 @@ static int receive_data(struct simple_sensor_cache_data *data) {
     goto cleanup;
   }
 
-  err = simple_sensor_cache_set_up_communication(data);
+  err = am2303_set_up_communication(data);
   if (err) {
     LKM_PRINT_ERR(data->pdev, "Unable to set up communication with sensor");
     goto cleanup;
   }
 
-  err = simple_sensor_cache_receive_data(data);
+  err = am2303_receive_data(data);
   if (err) {
     LKM_PRINT_ERR(data->pdev, "Unable to receive data from sensor");
     goto cleanup;

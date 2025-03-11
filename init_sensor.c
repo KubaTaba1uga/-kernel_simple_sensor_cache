@@ -5,13 +5,12 @@
 #include "common.h"
 #include "init_sensor.h"
 
-int simple_sensor_cache_init(struct platform_device *pdev) {
-  struct simple_sensor_cache_data *data;
+int am2303_init(struct platform_device *pdev) {
+  struct am2303_data *data;
 
   // Memory allocated with this function is automatically freed on driver
   //   detach.
-  data = devm_kzalloc(&pdev->dev, sizeof(struct simple_sensor_cache_data),
-                      GFP_KERNEL);
+  data = devm_kzalloc(&pdev->dev, sizeof(struct am2303_data), GFP_KERNEL);
   if (!data)
     return -ENOMEM;
 

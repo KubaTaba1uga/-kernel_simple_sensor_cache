@@ -1,8 +1,8 @@
-#ifndef SIMPLE_SENSOR_CACHE_INIT
-#define SIMPLE_SENSOR_CACHE_INIT
+#ifndef AM2303_INIT
+#define AM2303_INIT
 
 #include <linux/platform_device.h>
 
-int simple_sensor_cache_init(struct platform_device *pdev);
+int am2303_init(struct platform_device *pdev);
 
 #endif

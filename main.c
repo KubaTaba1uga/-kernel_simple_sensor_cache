@@ -19,13 +19,13 @@
 /***************************************************************
  *                        PUBLIC API
  **************************************************************/
-static int simple_sensor_cache_probe(struct platform_device *pdev) {
-  struct simple_sensor_cache_data *data;
+static int am2303_probe(struct platform_device *pdev) {
+  struct am2303_data *data;
   int err;
 
   dev_info(&pdev->dev, "Probing...\n");
 
-  err = simple_sensor_cache_init(pdev);
+  err = am2303_init(pdev);
   if (err) {
     LKM_PRINT_ERR(pdev, "Unable to init the driver\n");
     return err;
@@ -33,7 +33,7 @@ static int simple_sensor_cache_probe(struct platform_device *pdev) {
 
   data = platform_get_drvdata(pdev);
 
-  err = simple_sensor_cache_init_sysfs(data);
+  err = am2303_init_sysfs(data);
   if (err) {
     LKM_PRINT_ERR(pdev, "Unable to init sysfs\n");
     return err;
@@ -44,36 +44,36 @@ static int simple_sensor_cache_probe(struct platform_device *pdev) {
   return 0;
 }
 
-static void simple_sensor_cache_remove(struct platform_device *pdev) {
-  struct simple_sensor_cache_data *data;
+static void am2303_remove(struct platform_device *pdev) {
+  struct am2303_data *data;
   data = platform_get_drvdata(pdev);
 
-  simple_sensor_cache_destroy_sysfs(data);
+  am2303_destroy_sysfs(data);
 
   dev_info(&pdev->dev, "Custom one-wire GPIO driver removed\n");
 }
 
-static const struct of_device_id simple_sensor_cache_of_match[] = {
+static const struct of_device_id am2303_of_match[] = {
     {
         // This is a unique value which should match `compatibile` field in
         // overlay.
-        .compatible = "raspberrypi,simple_sensor_cache_device",
+        .compatible = "raspberrypi,am2303_device",
     },
     {},
 };
-MODULE_DEVICE_TABLE(of, simple_sensor_cache_of_match);
+MODULE_DEVICE_TABLE(of, am2303_of_match);
 
-static struct platform_driver simple_sensor_cache_driver = {
-    .probe = simple_sensor_cache_probe,
-    .remove_new = simple_sensor_cache_remove,
+static struct platform_driver am2303_driver = {
+    .probe = am2303_probe,
+    .remove_new = am2303_remove,
     .driver =
         {
-            .name = "simple_sensor_cache_gpio",
-            .of_match_table = simple_sensor_cache_of_match,
+            .name = "am2303_gpio",
+            .of_match_table = am2303_of_match,
         },
 };
 
-module_platform_driver(simple_sensor_cache_driver);
+module_platform_driver(am2303_driver);
 
 MODULE_AUTHOR("Jakub Buczynski");
 MODULE_DESCRIPTION("Custom GPIO descriptor-based one-wire driver for AM2303");

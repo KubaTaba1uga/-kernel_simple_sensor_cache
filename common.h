@@ -1,10 +1,10 @@
-#ifndef SIMPLE_SENSOR_CACHE_COMMON
-#define SIMPLE_SENSOR_CACHE_COMMON
+#ifndef AM2303_COMMON
+#define AM2303_COMMON
 #include <linux/kobject.h>
 #include <linux/platform_device.h>
 #include <linux/types.h>
 
-struct simple_sensor_cache_data {
+struct am2303_data {
   struct timespec64 last_receive;
   struct platform_device *pdev;
   struct gpio_desc *gpio;

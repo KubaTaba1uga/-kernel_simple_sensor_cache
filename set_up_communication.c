@@ -5,8 +5,7 @@
 
 #include "common.h"
 
-int simple_sensor_cache_set_up_communication(
-    struct simple_sensor_cache_data *data) {
+int am2303_set_up_communication(struct am2303_data *data) {
   // First we need to drive output high to initialize communication
   gpiod_direction_output(data->gpio, 1);
   udelay(500); // Busy-wait some time to allow sensor to detect init

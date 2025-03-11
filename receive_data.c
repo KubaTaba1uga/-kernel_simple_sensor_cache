@@ -5,7 +5,7 @@
 
 #include "common.h"
 
-int simple_sensor_cache_receive_data(struct simple_sensor_cache_data *data) {
+int am2303_receive_data(struct am2303_data *data) {
   // At this point pin is already set to receive
 
   // We need to obtain 40 bits, bit by bit.
