@@ -7,10 +7,8 @@
 struct simple_sensor_cache_data {
   struct platform_device *pdev;
   struct gpio_desc *gpio;
-  u8 humidity_number;
-  u8 humidity_fraction;
-  u8 temp_number;
-  u8 temp_fraction;
+  u16 temprature;
+  u16 humidity;
   u8 checksum;
 };
 

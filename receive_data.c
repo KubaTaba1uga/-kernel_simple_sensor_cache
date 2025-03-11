@@ -48,61 +48,47 @@ int simple_sensor_cache_receive_data(struct simple_sensor_cache_data *data) {
     }
   }
 
-  dev_info(&data->pdev->dev, "Received:\n");
-  for (int i = 0; i < sizeof(result) / sizeof(int); i++) {
-    dev_info(&data->pdev->dev, "%i \n", result[i]);
-  }
+  // Once we have all bits we need to decode values
+  u8 humidity_number;
+  u8 humidity_fraction;
+  u8 temp_number;
+  u8 temp_fraction;
+  u8 checksum;
 
   for (int i = 0; i < 8; i++) {
-    data->humidity_number = (data->humidity_number << 1) | result[i];
+    humidity_number = (humidity_number << 1) | result[i];
   }
 
   for (int i = 8; i < 16; i++) {
-    data->humidity_fraction = (data->humidity_fraction << 1) | result[i];
+    humidity_fraction = (humidity_fraction << 1) | result[i];
   }
 
   for (int i = 16; i < 24; i++) {
-    data->temp_number = (data->temp_number << 1) | result[i];
+    temp_number = (temp_number << 1) | result[i];
   }
 
   for (int i = 24; i < 32; i++) {
-    data->temp_fraction = (data->temp_fraction << 1) | result[i];
+    temp_fraction = (temp_fraction << 1) | result[i];
   }
 
   for (int i = 32; i < 40; i++) {
-    data->checksum = (data->checksum << 1) | result[i];
+    checksum = (checksum << 1) | result[i];
   }
 
-  u8 expected_checksum = (data->humidity_number + data->humidity_fraction +
-                          data->temp_number + data->temp_fraction) &
-                         0xFF;
+  u8 expected_checksum =
+      (humidity_number + humidity_fraction + temp_number + temp_fraction) &
+      0xFF;
 
-  if (data->checksum != expected_checksum) {
+  if (checksum != expected_checksum) {
     LKM_PRINT_ERR(data->pdev,
                   "Checksum is not matching: expected=%d vs actual=%d\n",
-                  expected_checksum, data->checksum);
+                  expected_checksum, checksum);
     return 1;
   }
 
-  // Combine the two bytes into a 16-bit value
-  u16 hum = (data->humidity_number << 8) | data->humidity_fraction;
-
-  // Print as a float divided by 10.0 to get the correct percentage
-  dev_info(&data->pdev->dev, "Humidity: %u.%u%%\n", hum / 10, hum % 10);
-
-  u16 raw_temp = (data->temp_number << 8) | data->temp_fraction;
-  int temp_int, temp_frac;
-
-  if (raw_temp & 0x8000) { // Check if the temperature is negative
-    raw_temp &= 0x7FFF;    // Clear the sign bit
-    temp_int = -(raw_temp / 10);
-    temp_frac = raw_temp % 10;
-  } else {
-    temp_int = raw_temp / 10;
-    temp_frac = raw_temp % 10;
-  }
-
-  dev_info(&data->pdev->dev, "Temperature: %d.%d°C\n", temp_int, temp_frac);
+  data->humidity = (humidity_number << 8) | humidity_fraction;
+  data->temprature = (temp_number << 8) | temp_fraction;
+  data->checksum = checksum;
 
   return 0;
 };
