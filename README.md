@@ -6,6 +6,9 @@ A Linux kernel module that implements a custom GPIO driver for the AM2303 sensor
 - **Sysfs interfaces** to read temperature and humidity values.
 - A **built-in caching mechanism** to ensure sensor data is polled at most once every 2 seconds.
 
+Sensor can be aquired from here:
+- https://botland.store/multifunctional-sensors/2637-temperature-and-humidity-sensor-dht22-am2302-module-cables-5904422372712.html
+
 ## Building
 
 1. Ensure you have the kernel headers and build tools installed:
