@@ -78,14 +78,15 @@ static int receive_data(struct simple_sensor_cache_data *data) {
   struct timespec64 now;
   int err;
 
+  mutex_lock(&recv_data_lock);
+
   ktime_get_ts64(&now);
 
   // We need to wait at least 2 seconds between data collections
   if (now.tv_sec - data->last_receive.tv_sec <= 2) {
-    return 0;
+    err = 0;
+    goto cleanup;
   }
-
-  mutex_lock(&recv_data_lock);
 
   err = simple_sensor_cache_set_up_communication(data);
   if (err) {
