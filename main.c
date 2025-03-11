@@ -39,7 +39,7 @@ static int am2303_probe(struct platform_device *pdev) {
     return err;
   }
 
-  dev_info(&pdev->dev, "Custom one-wire GPIO driver probed\n");
+  dev_info(&pdev->dev, "AM2303 probed\n");
 
   return 0;
 }
@@ -50,7 +50,7 @@ static void am2303_remove(struct platform_device *pdev) {
 
   am2303_destroy_sysfs(data);
 
-  dev_info(&pdev->dev, "Custom one-wire GPIO driver removed\n");
+  dev_info(&pdev->dev, "AM2303 removed\n");
 }
 
 static const struct of_device_id am2303_of_match[] = {

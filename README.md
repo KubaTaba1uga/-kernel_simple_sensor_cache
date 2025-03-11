@@ -36,7 +36,7 @@ Add the following snippet to `arch/arm64/boot/dts/broadcom/bcm2712-rpi-5-b.dts` 
 After modifying the DTS file, recompile and update your boot partition. On boot, verify that the custom GPIO device is recognized by checking:
 
 ```bash
-find /proc/device-tree/ | grep simple
+find /proc/device-tree/ | grep am2303
 ```
 
 ### Linux Kernel Module
