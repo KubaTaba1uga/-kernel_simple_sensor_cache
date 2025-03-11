@@ -21,7 +21,7 @@ DBG_STRIP := y
 ifeq (${MYDEBUG}, y)
 # https://www.kernel.org/doc/html/latest/kbuild/makefiles.html#compilation-flags
 # EXTRA_CFLAGS deprecated; use ccflags-y
-  ccflags-y   += -DDEBUG -g -ggdb -gdwarf-4 -Wall -fno-omit-frame-pointer -fvar-tracking-assignments
+  ccflags-y   += -DDEBUG -g -ggdb -gdwarf-4 -Wall -fno-omit-frame-pointer
   DBG_STRIP := n
 else
   ccflags-y   += -UDEBUG -Wall

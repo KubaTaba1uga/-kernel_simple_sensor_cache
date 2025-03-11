@@ -4,6 +4,7 @@
 #include <linux/platform_device.h>
 
 #include "common.h"
+#include "set_up_communication.h"
 
 int am2303_set_up_communication(struct am2303_data *data)
 {

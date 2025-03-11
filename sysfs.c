@@ -1,6 +1,7 @@
 #include <linux/device.h>
 #include <linux/ktime.h>
 
+#include "sysfs.h"
 #include "common.h"
 #include "linux/mutex.h"
 #include "receive_data.h"
@@ -55,7 +56,7 @@ static ssize_t show_temp(struct device *dev, struct device_attribute *attr, char
 		return -1;
 	}
 
-	return sprintf(buf, "%d\n", data->temprature);
+	return snprintf(buf, 32, "%d\n", data->temprature);
 }
 
 static ssize_t show_humid(struct device *dev, struct device_attribute *attr, char *buf)
@@ -71,7 +72,7 @@ static ssize_t show_humid(struct device *dev, struct device_attribute *attr, cha
 		return -1;
 	}
 
-	return sprintf(buf, "%d\n", data->humidity);
+	return snprintf(buf, 32, "%d\n", data->humidity);
 }
 
 static int receive_data(struct am2303_data *data)

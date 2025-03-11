@@ -4,13 +4,14 @@
 #include <linux/platform_device.h>
 
 #include "common.h"
+#include "receive_data.h"
 
 int am2303_receive_data(struct am2303_data *data)
 {
 	// At this point pin is already set to receive
 
 	// We need to obtain 40 bits, bit by bit.
-	int result[40];
+	int result[40] = { 0 };
 
 	for (int i = 0; i < sizeof(result) / sizeof(int); i++) {
 		// First sensor pulls down voltage to indicate bit transmission
@@ -48,11 +49,11 @@ int am2303_receive_data(struct am2303_data *data)
 	}
 
 	// Once we have all bits we need to decode values
-	u8 humidity_number;
-	u8 humidity_fraction;
-	u8 temp_number;
-	u8 temp_fraction;
-	u8 checksum;
+	u8 humidity_fraction = 0;
+	u8 humidity_number = 0;
+	u8 temp_fraction = 0;
+	u8 temp_number = 0;
+	u8 checksum = 0;
 
 	for (int i = 0; i < 8; i++) {
 		humidity_number = (humidity_number << 1) | result[i];
