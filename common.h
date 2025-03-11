@@ -5,6 +5,7 @@
 #include <linux/types.h>
 
 struct simple_sensor_cache_data {
+  struct timespec64 last_receive;
   struct platform_device *pdev;
   struct gpio_desc *gpio;
   u16 temprature;
