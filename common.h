@@ -5,12 +5,12 @@
 #include <linux/types.h>
 
 struct am2303_data {
-  struct timespec64 last_receive;
-  struct platform_device *pdev;
-  struct gpio_desc *gpio;
-  u16 temprature;
-  u16 humidity;
-  u8 checksum;
+	struct timespec64 last_receive;
+	struct platform_device *pdev;
+	struct gpio_desc *gpio;
+	u16 temprature;
+	u16 humidity;
+	u8 checksum;
 };
 
 #define LKM_PRINT_ERR(pdev, fmt, ...)                                          \

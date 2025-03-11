@@ -19,58 +19,60 @@
 /***************************************************************
  *                        PUBLIC API
  **************************************************************/
-static int am2303_probe(struct platform_device *pdev) {
-  struct am2303_data *data;
-  int err;
+static int am2303_probe(struct platform_device *pdev)
+{
+	struct am2303_data *data;
+	int err;
 
-  dev_info(&pdev->dev, "Probing...\n");
+	dev_info(&pdev->dev, "Probing...\n");
 
-  err = am2303_init(pdev);
-  if (err) {
-    LKM_PRINT_ERR(pdev, "Unable to init the driver\n");
-    return err;
-  }
+	err = am2303_init(pdev);
+	if (err) {
+		LKM_PRINT_ERR(pdev, "Unable to init the driver\n");
+		return err;
+	}
 
-  data = platform_get_drvdata(pdev);
+	data = platform_get_drvdata(pdev);
 
-  err = am2303_init_sysfs(data);
-  if (err) {
-    LKM_PRINT_ERR(pdev, "Unable to init sysfs\n");
-    return err;
-  }
+	err = am2303_init_sysfs(data);
+	if (err) {
+		LKM_PRINT_ERR(pdev, "Unable to init sysfs\n");
+		return err;
+	}
 
-  dev_info(&pdev->dev, "AM2303 probed\n");
+	dev_info(&pdev->dev, "AM2303 probed\n");
 
-  return 0;
+	return 0;
 }
 
-static void am2303_remove(struct platform_device *pdev) {
-  struct am2303_data *data;
-  data = platform_get_drvdata(pdev);
+static void am2303_remove(struct platform_device *pdev)
+{
+	struct am2303_data *data;
+	data = platform_get_drvdata(pdev);
 
-  am2303_destroy_sysfs(data);
+	am2303_destroy_sysfs(data);
 
-  dev_info(&pdev->dev, "AM2303 removed\n");
+	dev_info(&pdev->dev, "AM2303 removed\n");
 }
 
 static const struct of_device_id am2303_of_match[] = {
-    {
-        // This is a unique value which should match `compatibile` field in
-        // overlay.
-        .compatible = "raspberrypi,am2303_device",
-    },
-    {},
+	{
+	 // This is a unique value which should match `compatibile` field in
+	 // overlay.
+	 .compatible = "raspberrypi,am2303_device",
+	 },
+	{},
 };
+
 MODULE_DEVICE_TABLE(of, am2303_of_match);
 
 static struct platform_driver am2303_driver = {
-    .probe = am2303_probe,
-    .remove_new = am2303_remove,
-    .driver =
-        {
-            .name = "am2303_gpio",
-            .of_match_table = am2303_of_match,
-        },
+	.probe = am2303_probe,
+	.remove_new = am2303_remove,
+	.driver = {
+		   .name = "am2303_gpio",
+		   .of_match_table = am2303_of_match,
+		   },
 };
 
 module_platform_driver(am2303_driver);
