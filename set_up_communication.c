@@ -20,18 +20,21 @@ int simple_sensor_cache_set_up_communication(
   udelay(30); // Wait between 20 and 40 us
   gpiod_direction_input(data->gpio);
 
+  // Wait until sensor performs 80us pulldown
   udelay(20);
   if (gpiod_get_value(data->gpio) != 0) {
     dev_err(&data->pdev->dev, "Sensor is not responding with low voltage\n");
     return 1;
   }
-  udelay(30);
+  udelay(60);
 
-  udelay(50);
+  // Wait until sensor performs 80us pullup
+  udelay(20);
   if (gpiod_get_value(data->gpio) != 1) {
     dev_err(&data->pdev->dev, "Sensor is not responding with high voltage\n");
     return 1;
   }
+  udelay(60);
 
   return 0;
 };

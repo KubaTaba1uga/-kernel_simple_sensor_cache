@@ -10,6 +10,7 @@
 #include <linux/of_device.h>
 #include <linux/platform_device.h>
 
+#include "common.h"
 #include "init_sensor.h"
 #include "receive_data.h"
 #include "set_up_communication.h"
@@ -25,7 +26,7 @@ static int simple_sensor_cache_probe(struct platform_device *pdev) {
 
   err = simple_sensor_cache_init(pdev);
   if (err) {
-    dev_err(&pdev->dev, "Unable to init the driver\n");
+    LKM_PRINT_ERR(pdev, "Unable to init the driver\n");
     return err;
   }
 
@@ -33,13 +34,13 @@ static int simple_sensor_cache_probe(struct platform_device *pdev) {
 
   err = simple_sensor_cache_set_up_communication(data);
   if (err) {
-    dev_err(&pdev->dev, "Unable to set up communication\n");
+    LKM_PRINT_ERR(pdev, "Unable to set up communication\n");
     return err;
   }
 
   err = simple_sensor_cache_receive_data(data);
   if (err) {
-    dev_err(&pdev->dev, "Unable to receive data\n");
+    LKM_PRINT_ERR(pdev, "Unable to receive data\n");
   }
 
   dev_info(&pdev->dev, "Custom one-wire GPIO driver probed\n");
