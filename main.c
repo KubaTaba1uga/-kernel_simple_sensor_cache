@@ -14,12 +14,13 @@
 #include "init_sensor.h"
 #include "receive_data.h"
 #include "set_up_communication.h"
+#include "sysfs.h"
 
 /***************************************************************
  *                        PUBLIC API
  **************************************************************/
 static int simple_sensor_cache_probe(struct platform_device *pdev) {
-  static struct simple_sensor_cache_data *data;
+  struct simple_sensor_cache_data *data;
   int err;
 
   dev_info(&pdev->dev, "Probing...\n");
@@ -32,15 +33,10 @@ static int simple_sensor_cache_probe(struct platform_device *pdev) {
 
   data = platform_get_drvdata(pdev);
 
-  err = simple_sensor_cache_set_up_communication(data);
+  err = simple_sensor_cache_init_sysfs(data);
   if (err) {
-    LKM_PRINT_ERR(pdev, "Unable to set up communication\n");
+    LKM_PRINT_ERR(pdev, "Unable to init sysfs\n");
     return err;
-  }
-
-  err = simple_sensor_cache_receive_data(data);
-  if (err) {
-    LKM_PRINT_ERR(pdev, "Unable to receive data\n");
   }
 
   dev_info(&pdev->dev, "Custom one-wire GPIO driver probed\n");
@@ -49,6 +45,11 @@ static int simple_sensor_cache_probe(struct platform_device *pdev) {
 }
 
 static void simple_sensor_cache_remove(struct platform_device *pdev) {
+  struct simple_sensor_cache_data *data;
+  data = platform_get_drvdata(pdev);
+
+  simple_sensor_cache_destroy_sysfs(data);
+
   dev_info(&pdev->dev, "Custom one-wire GPIO driver removed\n");
 }
 
