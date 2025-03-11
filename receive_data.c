@@ -3,7 +3,6 @@
 #include <linux/gpio/consumer.h>
 #include <linux/platform_device.h>
 
-#include "asm-generic/delay.h"
 #include "common.h"
 
 int simple_sensor_cache_receive_data(struct simple_sensor_cache_data *data) {
@@ -85,10 +84,25 @@ int simple_sensor_cache_receive_data(struct simple_sensor_cache_data *data) {
     return 1;
   }
 
-  dev_info(&data->pdev->dev, "Humidity: %d.%d\n", data->humidity_number,
-           data->humidity_fraction);
-  dev_info(&data->pdev->dev, "Temprature: %d.%d\n", data->temp_number,
-           data->temp_fraction);
+  // Combine the two bytes into a 16-bit value
+  u16 hum = (data->humidity_number << 8) | data->humidity_fraction;
+
+  // Print as a float divided by 10.0 to get the correct percentage
+  dev_info(&data->pdev->dev, "Humidity: %u.%u%%\n", hum / 10, hum % 10);
+
+  u16 raw_temp = (data->temp_number << 8) | data->temp_fraction;
+  int temp_int, temp_frac;
+
+  if (raw_temp & 0x8000) { // Check if the temperature is negative
+    raw_temp &= 0x7FFF;    // Clear the sign bit
+    temp_int = -(raw_temp / 10);
+    temp_frac = raw_temp % 10;
+  } else {
+    temp_int = raw_temp / 10;
+    temp_frac = raw_temp % 10;
+  }
+
+  dev_info(&data->pdev->dev, "Temperature: %d.%d°C\n", temp_int, temp_frac);
 
   return 0;
 };
