@@ -64,7 +64,7 @@ find /proc/device-tree/ | grep am2303
 
 There is still some stuff to improve:
 - specify pin dynamically via LKM parameter
-- use IRQ instead of delays and sleeps
+- use threaded hanlders instead of delays and sleeps. Threaded handler respond to interrupts so we wouldn't need sleeping having basically interrupts handlers.
 
 ## License
 
