@@ -1,11 +1,11 @@
 #include <linux/device.h>
 #include <linux/ktime.h>
 
-#include "sysfs.h"
 #include "common.h"
 #include "linux/mutex.h"
 #include "receive_data.h"
 #include "set_up_communication.h"
+#include "sysfs.h"
 
 static ssize_t show_temp(struct device *dev, struct device_attribute *attr, char *buf);
 static ssize_t show_humid(struct device *dev, struct device_attribute *attr, char *buf);
@@ -13,7 +13,6 @@ static int receive_data(struct am2303_data *data);
 
 static DEVICE_ATTR(temperature, 0440, show_temp, NULL);
 static DEVICE_ATTR(humidity, 0440, show_humid, NULL);
-static DEFINE_MUTEX(recv_data_lock);
 
 int am2303_init_sysfs(struct am2303_data *data)
 {
@@ -32,7 +31,7 @@ int am2303_init_sysfs(struct am2303_data *data)
 		return err;
 	}
 
-	mutex_init(&recv_data_lock);
+	mutex_init(&data->access_mutex);
 
 	return 0;
 };
@@ -46,33 +45,55 @@ void am2303_destroy_sysfs(struct am2303_data *data)
 static ssize_t show_temp(struct device *dev, struct device_attribute *attr, char *buf)
 {
 	struct am2303_data *data;
-	int err;
+	int err = 0;
 
 	data = dev_get_drvdata(dev);
 
+	mutex_lock(&data->access_mutex);
+
 	err = receive_data(data);
 	if (err) {
-		LKM_PRINT_ERR(data->pdev, "Unable to receive temprature from sensor");
-		return -1;
+		LKM_PRINT_ERR(data->pdev, "Unable to receive temprature from sensor\n");
+		goto cleanup;
 	}
 
-	return snprintf(buf, 32, "%d\n", data->temprature);
+	err = snprintf(buf, 32, "%d\n", data->temprature);
+	if (err) {
+		LKM_PRINT_ERR(data->pdev, "Unable to write temprature into sysfs buffer\n");
+		goto cleanup;
+	}
+
+ cleanup:
+	mutex_unlock(&data->access_mutex);
+
+	return err;
 }
 
 static ssize_t show_humid(struct device *dev, struct device_attribute *attr, char *buf)
 {
 	struct am2303_data *data;
-	int err;
+	int err = 0;
 
 	data = dev_get_drvdata(dev);
 
+	mutex_lock(&data->access_mutex);
+
 	err = receive_data(data);
 	if (err) {
-		LKM_PRINT_ERR(data->pdev, "Unable to receive humidity from sensor");
-		return -1;
+		LKM_PRINT_ERR(data->pdev, "Unable to receive humidity from sensor\n");
+		goto cleanup;
 	}
 
-	return snprintf(buf, 32, "%d\n", data->humidity);
+	err = snprintf(buf, 32, "%d\n", data->humidity);
+	if (err) {
+		LKM_PRINT_ERR(data->pdev, "Unable to write humidity into sysfs buffer\n");
+		goto cleanup;
+	}
+
+ cleanup:
+	mutex_unlock(&data->access_mutex);
+
+	return err;
 }
 
 static int receive_data(struct am2303_data *data)
@@ -80,34 +101,26 @@ static int receive_data(struct am2303_data *data)
 	struct timespec64 now;
 	int err;
 
-	mutex_lock(&recv_data_lock);
-
 	ktime_get_ts64(&now);
 
 	// We need to wait at least 2 seconds between data collections
 	if (now.tv_sec - data->last_receive.tv_sec <= 2) {
-		err = 0;
-		goto cleanup;
+		return 0;
 	}
 
 	err = am2303_set_up_communication(data);
 	if (err) {
 		LKM_PRINT_ERR(data->pdev, "Unable to set up communication with sensor");
-		goto cleanup;
+		return err;
 	}
 
 	err = am2303_receive_data(data);
 	if (err) {
 		LKM_PRINT_ERR(data->pdev, "Unable to receive data from sensor");
-		goto cleanup;
+		return err;
 	}
 
 	data->last_receive = now;
 
-	err = 0;
-
- cleanup:
-	mutex_unlock(&recv_data_lock);
-
-	return err;
+	return 0;
 }
