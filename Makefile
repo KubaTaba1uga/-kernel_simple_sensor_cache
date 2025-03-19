@@ -9,7 +9,7 @@ endif
 KDIR ?= /lib/modules/$(shell uname -r)/build
 
 #CC     := $(CROSS_COMPILE)gcc
-CC    := clang
+CC    ?= clang
 STRIP := ${CROSS_COMPILE}strip
 
 PWD            := $(shell pwd)
