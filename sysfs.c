@@ -58,7 +58,7 @@ static ssize_t show_temp(struct device *dev, struct device_attribute *attr, char
 	}
 
 	err = snprintf(buf, 32, "%d\n", data->temprature);
-	if (err) {
+	if (err < 0) {
 		LKM_PRINT_ERR(data->pdev, "Unable to write temprature into sysfs buffer\n");
 		goto cleanup;
 	}
@@ -85,7 +85,7 @@ static ssize_t show_humid(struct device *dev, struct device_attribute *attr, cha
 	}
 
 	err = snprintf(buf, 32, "%d\n", data->humidity);
-	if (err) {
+	if (err < 0) {
 		LKM_PRINT_ERR(data->pdev, "Unable to write humidity into sysfs buffer\n");
 		goto cleanup;
 	}
